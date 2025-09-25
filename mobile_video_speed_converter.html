@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Velocidade - Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 25px;
+        }
+
+        .upload-zone {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .upload-zone.active {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #a0aec0;
+        }
+
+        .upload-text {
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .speed-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .speed-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .speed-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .speed-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            color: #4a5568;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .convert-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .video-list {
+            margin-bottom: 20px;
+        }
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .video-name {
+            font-size: 14px;
+            color: #4a5568;
+            flex: 1;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .status-processing {
+            background: #feebc8;
+            color: #dd6b20;
+        }
+
+        .status-complete {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .download-section {
+            display: none;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #38a169;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .warning-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .speed-presets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Conversor de Velocidade</h1>
+            <p>Altere a velocidade dos seus vídeos</p>
+        </div>
+
+        <div class="warning">
+            <div class="warning-title">⚠️ Importante:</div>
+            Este conversor funciona no seu navegador. Vídeos grandes podem demorar para processar e consumir bateria. Para melhor performance, use vídeos menores que 100MB.
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Toque para selecionar vídeos</div>
+                <div class="upload-subtext">Suporta MP4, WebM, MOV</div>
+            </div>
+            <input type="file" id="fileInput" accept="video/*" multiple>
+        </div>
+
+        <div class="speed-section">
+            <div class="section-title">Velocidade desejada:</div>
+            <input type="number" class="speed-input" id="speedInput" placeholder="2.0" step="0.1" min="0.1" max="4.0" value="2.0">
+            
+            <div class="speed-presets">
+                <button class="preset-btn" onclick="setSpeed(0.5)">0.5x</button>
+                <button class="preset-btn" onclick="setSpeed(1.0)">1.0x</button>
+                <button class="preset-btn" onclick="setSpeed(1.5)">1.5x</button>
+                <button class="preset-btn active" onclick="setSpeed(2.0)">2.0x</button>
+                <button class="preset-btn" onclick="setSpeed(2.5)">2.5x</button>
+                <button class="preset-btn" onclick="setSpeed(3.0)">3.0x</button>
+            </div>
+        </div>
+
+        <div class="video-list" id="videoList"></div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processando...</div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="startConversion()" disabled>
+            Selecione vídeos para começar
+        </button>
+
+        <div class="download-section" id="downloadSection"></div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let processedVideos = [];
+        let currentProcessing = 0;
+
+        const fileInput = document.getElementById('fileInput');
+        const videoList = document.getElementById('videoList');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const uploadZone = document.querySelector('.upload-zone');
+
+        // Event listeners
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('video/'));
+            if (files.length > 0) {
+                selectedFiles = files;
+                updateVideoList();
+                updateConvertButton();
+            }
+        });
+
+        function handleFileSelect(event) {
+            selectedFiles = Array.from(event.target.files);
+            updateVideoList();
+            updateConvertButton();
+            uploadZone.classList.add('active');
+        }
+
+        function updateVideoList() {
+            if (selectedFiles.length === 0) {
+                videoList.innerHTML = '';
+                return;
+            }
+
+            videoList.innerHTML = `
+                <div class="section-title">Vídeos selecionados (${selectedFiles.length}):</div>
+                ${selectedFiles.map((file, index) => `
+                    <div class="video-item" id="video-${index}">
+                        <div class="video-name">${file.name}</div>
+                        <div class="video-status status-pending">Pendente</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function updateConvertButton() {
+            if (selectedFiles.length > 0) {
+                convertBtn.textContent = `Converter ${selectedFiles.length} vídeo(s)`;
+                convertBtn.disabled = false;
+            } else {
+                convertBtn.textContent = 'Selecione vídeos para começar';
+                convertBtn.disabled = true;
+            }
+        }
+
+        function setSpeed(speed) {
+            document.getElementById('speedInput').value = speed;
+            
+            // Update active preset button
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === `${speed}x`) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        async function startConversion() {
+            const speed = parseFloat(document.getElementById('speedInput').value);
+            
+            if (!speed || speed <= 0 || speed > 4) {
+                alert('Por favor, digite uma velocidade válida entre 0.1 e 4.0');
+                return;
+            }
+
+            if (selectedFiles.length === 0) {
+                alert('Selecione pelo menos um vídeo');
+                return;
+            }
+
+            convertBtn.disabled = true;
+            convertBtn.textContent = 'Processando...';
+            progressSection.style.display = 'block';
+            processedVideos = [];
+            currentProcessing = 0;
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                await processVideo(selectedFiles[i], speed, i);
+                currentProcessing++;
+                
+                const progress = (currentProcessing / selectedFiles.length) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${currentProcessing}/${selectedFiles.length} vídeos processados`;
+            }
+
+            showDownloadSection();
+        }
+
+        async function processVideo(file, speed, index) {
+            const videoItem = document.getElementById(`video-${index}`);
+            const statusElement = videoItem.querySelector('.video-status');
+            
+            statusElement.textContent = 'Processando';
+            statusElement.className = 'video-status status-processing';
+
+            try {
+                const processedBlob = await changeVideoSpeed(file, speed);
+                
+                statusElement.textContent = 'Concluído';
+                statusElement.className = 'video-status status-complete';
+                
+                processedVideos.push({
+                    name: file.name.replace(/\.(mp4|webm|mov)$/i, `_${speed}x.$1`),
+                    blob: processedBlob
+                });
+                
+            } catch (error) {
+                console.error('Erro ao processar vídeo:', error);
+                statusElement.textContent = 'Erro';
+                statusElement.className = 'video-status status-pending';
+                alert(`Erro ao processar ${file.name}: ${error.message}`);
+            }
+        }
+
+        async function changeVideoSpeed(file, speed) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    const stream = canvas.captureStream(30);
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'video/webm;codecs=vp8'
+                    });
+                    
+                    const chunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            chunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        resolve(blob);
+                    };
+                    
+                    video.playbackRate = speed;
+                    mediaRecorder.start();
+                    
+                    const drawFrame = () => {
+                        if (!video.paused && !video.ended) {
+                            ctx.drawImage(video, 0, 0);
+                            requestAnimationFrame(drawFrame);
+                        }
+                    };
+                    
+                    video.onplay = () => {
+                        drawFrame();
+                    };
+                    
+                    video.onended = () => {
+                        mediaRecorder.stop();
+                    };
+                    
+                    video.play();
+                };
+                
+                video.onerror = () => {
+                    reject(new Error('Erro ao carregar vídeo'));
+                };
+                
+                video.src = URL.createObjectURL(file);
+            });
+        }
+
+        function showDownloadSection() {
+            convertBtn.textContent = 'Conversão Concluída!';
+            
+            if (processedVideos.length > 0) {
+                downloadSection.style.display = 'block';
+                downloadSection.innerHTML = `
+                    <div class="section-title">✅ Downloads disponíveis:</div>
+                    ${processedVideos.map((video, index) => `
+                        <button class="download-btn" onclick="downloadVideo(${index})">
+                            📥 ${video.name}
+                        </button>
+                    `).join('')}
+                    <button class="download-btn" onclick="downloadAll()" style="background: #667eea;">
+                        📦 Baixar todos os vídeos
+                    </button>
+                `;
+            }
+            
+            setTimeout(() => {
+                convertBtn.textContent = 'Converter novos vídeos';
+                convertBtn.disabled = false;
+            }, 2000);
+        }
+
+        function downloadVideo(index) {
+            const video = processedVideos[index];
+            const url = URL.createObjectURL(video.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = video.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadAll() {
+            processedVideos.forEach((video, index) => {
+                setTimeout(() => downloadVideo(index), index * 500);
+            });
+        }
+    </script>
+</body>
+</html>
